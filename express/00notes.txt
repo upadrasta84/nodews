@@ -1,0 +1,533 @@
+express is a fast, unopionated, minimalist web framework or node.js
+
+latest version now is express 4.18.1
+
+Express is a routing and middleware web framework that has minimal functionality of its own: An Express application is essentially a series of middleware function calls.
+
+Middleware functions are functions that have access to the request object (req), the response object (res), and the next middleware function in the application’s request-response cycle. The next middleware function is commonly denoted by a variable named next.
+
+Middleware functions can perform the following tasks:
+
+Execute any code.
+Make changes to the request and the response objects.
+End the request-response cycle.
+Call the next middleware function in the stack.
+If the current middleware function does not end the request-response cycle, it must call next() to pass control to the next middleware function. Otherwise, the request will be left hanging.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Use the application generator tool, express-generator, to quickly create an application skeleton.
+
+For example, the following creates an Express app named myapp. The app will be created in a folder named myapp in the current working directory and the view engine will be set to Pug:
+
+$ express --view=pug myapp
+
+   create : myapp
+   create : myapp/package.json
+   create : myapp/app.js
+   create : myapp/public
+   create : myapp/public/javascripts
+   create : myapp/public/images
+   create : myapp/routes
+   create : myapp/routes/index.js
+   create : myapp/routes/users.js
+   create : myapp/public/stylesheets
+   create : myapp/public/stylesheets/style.css
+   create : myapp/views
+   create : myapp/views/index.pug
+   create : myapp/views/layout.pug
+   create : myapp/views/error.pug
+   create : myapp/bin
+   create : myapp/bin/www
+Then install dependencies:
+
+$ cd myapp
+$ npm install
+
+----------------------------------------
+I did this:
+
+D:\Karthik\workspaces\nodews\express>npx express-generator  --view=pug myapp
+Need to install the following packages:
+  express-generator@4.16.1
+Ok to proceed? (y) y
+it created a bunch of files as stated above.
+
+it then asked me to do this:
+change directory:
+     > cd myapp
+
+   install dependencies:
+     > npm install
+
+   run the app:
+     > SET DEBUG=myapp:* & npm start
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Routing refers to how an application’s endpoints (URIs) respond to client requests. 
+
+Routing refers to determining how an application responds to a client request to a particular endpoint, which is a URI (or path) and a specific HTTP request method (GET, POST, and so on).
+
+Each route can have one or more handler functions, which are executed when the route is matched.
+
+Route definition takes the following structure:
+
+app.METHOD(PATH, HANDLER)
+Where:
+
+app is an instance of express.
+METHOD is an HTTP request method, in lowercase.
+PATH is a path on the server.
+HANDLER is the function executed when the route is matched.
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+To serve static files such as images, CSS files, and JavaScript files, use the express.static built-in middleware function in Express.
+
+The function signature is:
+
+express.static(root, [options])
+The root argument specifies the root directory from which to serve static assets. For more information on the options argument, see express.static.
+
+For example, use the following code to serve images, CSS files, and JavaScript files in a directory named public:
+
+app.use(express.static('public'))
+
+To use multiple static assets directories, call the express.static middleware function multiple times:
+
+app.use(express.static('public'))
+app.use(express.static('files'))
+
+Now, you can load the files that are in the public directory:
+
+http://localhost:3000/images/kitten.jpg
+http://localhost:3000/css/style.css
+http://localhost:3000/js/app.js
+http://localhost:3000/images/bg.png
+http://localhost:3000/hello.html
+
+To create a virtual path prefix (where the path does not actually exist in the file system) for files that are served by the express.static function, specify a mount path for the static directory, as shown below:
+
+app.use('/static', express.static('public'))
+Now, you can load the files that are in the public directory from the /static path prefix.
+
+http://localhost:3000/static/images/kitten.jpg
+http://localhost:3000/static/css/style.css
+http://localhost:3000/static/js/app.js
+http://localhost:3000/static/images/bg.png
+http://localhost:3000/static/hello.html
+However, the path that you provide to the express.static function is relative to the directory from where you launch your node process. If you run the express app from another directory, it’s safer to use the absolute path of the directory that you want to serve:
+
+const path = require('path')
+app.use('/static', express.static(path.join(__dirname, 'public')))
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Route paths, in combination with a request method, define the endpoints at which requests can be made. Route paths can be strings, string patterns, or regular expressions.
+
+The characters ?, +, *, and () are subsets of their regular expression counterparts. The hyphen (-) and the dot (.) are interpreted literally by string-based paths.
+
+If you need to use the dollar character ($) in a path string, enclose it escaped within ([ and ]). For example, the path string for requests at “/data/$book”, would be “/data/([\$])book”.
+
+This route path will match acd and abcd.
+
+app.get('/ab?cd', (req, res) => {
+  res.send('ab?cd')
+})
+This route path will match abcd, abbcd, abbbcd, and so on.
+
+app.get('/ab+cd', (req, res) => {
+  res.send('ab+cd')
+})
+This route path will match abcd, abxcd, abRANDOMcd, ab123cd, and so on.
+
+app.get('/ab*cd', (req, res) => {
+  res.send('ab*cd')
+})
+This route path will match /abe and /abcde.
+
+app.get('/ab(cd)?e', (req, res) => {
+  res.send('ab(cd)?e')
+})
+Examples of route paths based on regular expressions:
+
+This route path will match anything with an “a” in it.
+
+app.get(/a/, (req, res) => {
+  res.send('/a/')
+})
+This route path will match butterfly and dragonfly, but not butterflyman, dragonflyman, and so on.
+
+app.get(/.*fly$/, (req, res) => {
+  res.send('/.*fly$/')
+})
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+To define routes with route parameters, simply specify the route parameters in the path of the route as shown below.
+
+app.get('/users/:userId/books/:bookId', (req, res) => {
+  res.send(req.params)
+})
+
+Since the hyphen (-) and the dot (.) are interpreted literally, they can be used along with route parameters for useful purposes.
+
+Route path: /flights/:from-:to
+Request URL: http://localhost:3000/flights/LAX-SFO
+req.params: { "from": "LAX", "to": "SFO" }
+Route path: /plantae/:genus.:species
+Request URL: http://localhost:3000/plantae/Prunus.persica
+req.params: { "genus": "Prunus", "species": "persica" }
+To have more control over the exact string that can be matched by a route parameter, you can append a regular expression in parentheses (()):
+
+Route path: /user/:userId(\d+)
+Request URL: http://localhost:3000/user/42
+req.params: {"userId": "42"}
+------------------------------------------------------------------------------------------------------------------------------------------------------
+You can provide multiple callback functions that behave like middleware to handle a request. The only exception is that these callbacks might invoke next('route') to bypass the remaining route callbacks. You can use this mechanism to impose pre-conditions on a route, then pass control to subsequent routes if there’s no reason to proceed with the current route.
+
+Route handlers can be in the form of a function, an array of functions, or combinations of both, as shown in the following examples.
+
+A single callback function can handle a route. For example:
+
+app.get('/example/a', (req, res) => {
+  res.send('Hello from A!')
+})
+More than one callback function can handle a route (make sure you specify the next object). For example:
+
+app.get('/example/b', (req, res, next) => {
+  console.log('the response will be sent by the next function ...')
+  next()
+}, (req, res) => {
+  res.send('Hello from B!')
+})
+An array of callback functions can handle a route. For example:
+
+const cb0 = function (req, res, next) {
+  console.log('CB0')
+  next()
+}
+
+const cb1 = function (req, res, next) {
+  console.log('CB1')
+  next()
+}
+
+const cb2 = function (req, res) {
+  res.send('Hello from C!')
+}
+
+app.get('/example/c', [cb0, cb1, cb2])
+A combination of independent functions and arrays of functions can handle a route. For example:
+
+const cb0 = function (req, res, next) {
+  console.log('CB0')
+  next()
+}
+
+const cb1 = function (req, res, next) {
+  console.log('CB1')
+  next()
+}
+
+app.get('/example/d', [cb0, cb1], (req, res, next) => {
+  console.log('the response will be sent by the next function ...')
+  next()
+}, (req, res) => {
+  res.send('Hello from D!')
+})
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+The methods on the response object (res) in the following table can send a response to the client, and terminate the request-response cycle. If none of these methods are called from a route handler, the client request will be left hanging.
+
+Method	Description
+res.download()	Prompt a file to be downloaded.
+res.end()	End the response process.
+res.json()	Send a JSON response.
+res.jsonp()	Send a JSON response with JSONP support.
+res.redirect()	Redirect a request.
+res.render()	Render a view template.
+res.send()	Send a response of various types.
+res.sendFile()	Send a file as an octet stream.
+res.sendStatus()	Set the response status code and send its string representation as the response body.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+express.Router
+Use the express.Router class to create modular, mountable route handlers. A Router instance is a complete middleware and routing system; for this reason, it is often referred to as a “mini-app”.
+
+The following example creates a router as a module, loads a middleware function in it, defines some routes, and mounts the router module on a path in the main app.
+
+Create a router file named birds.js in the app directory, with the following content:
+
+const express = require('express')
+const router = express.Router()
+
+// middleware that is specific to this router
+router.use((req, res, next) => {
+  console.log('Time: ', Date.now())
+  next()
+})
+// define the home page route
+router.get('/', (req, res) => {
+  res.send('Birds home page')
+})
+// define the about route
+router.get('/about', (req, res) => {
+  res.send('About birds')
+})
+
+module.exports = router
+
+Then, load the router module in the app:
+
+const birds = require('./birds')
+
+// ...
+
+app.use('/birds', birds)
+The app will now be able to handle requests to /birds and /birds/about, as well as call the timeLog middleware function that is specific to the route.
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Here is a simple example of a middleware function called “myLogger”. This function just prints “LOGGED” when a request to the app passes through it. The middleware function is assigned to a variable named myLogger.
+
+const myLogger = function (req, res, next) {
+  console.log('LOGGED')
+  next()
+}
+
+Notice the call above to next(). Calling this function invokes the next middleware function in the app. The next() function is not a part of the Node.js or Express API, but is the third argument that is passed to the middleware function. The next() function could be named anything, but by convention it is always named “next”. To avoid confusion, always use this convention.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+const express = require('express')
+const app = express()
+
+const myLogger = function (req, res, next) {
+  console.log('LOGGED')
+  next()
+}
+
+app.use(myLogger)
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+app.listen(3000)
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+An Express application can use the following types of middleware:
+
+Application-level middleware
+Router-level middleware
+Error-handling middleware
+Built-in middleware
+Third-party middleware
+You can load application-level and router-level middleware with an optional mount path. You can also load a series of middleware functions together, which creates a sub-stack of the middleware system at a mount point.
+
+Application-level middleware
+Bind application-level middleware to an instance of the app object by using the app.use() and app.METHOD() functions, where METHOD is the HTTP method of the request that the middleware function handles (such as GET, PUT, or POST) in lowercase.
+
+This example shows a middleware function with no mount path. The function is executed every time the app receives a request.
+
+const express = require('express')
+const app = express()
+
+app.use((req, res, next) => {
+  console.log('Time:', Date.now())
+  next()
+})
+
+This example shows a middleware function mounted on the /user/:id path. The function is executed for any type of HTTP request on the /user/:id path.
+
+app.use('/user/:id', (req, res, next) => {
+  console.log('Request Type:', req.method)
+  next()
+})
+This example shows a route and its handler function (middleware system). The function handles GET requests to the /user/:id path.
+
+app.get('/user/:id', (req, res, next) => {
+  res.send('USER')
+})
+Here is an example of loading a series of middleware functions at a mount point, with a mount path. It illustrates a middleware sub-stack that prints request info for any type of HTTP request to the /user/:id path.
+
+app.use('/user/:id', (req, res, next) => {
+  console.log('Request URL:', req.originalUrl)
+  next()
+}, (req, res, next) => {
+  console.log('Request Type:', req.method)
+  next()
+})
+
+To skip the rest of the middleware functions from a router middleware stack, call next('route') to pass control to the next route. NOTE: next('route') will work only in middleware functions that were loaded by using the app.METHOD() or router.METHOD() functions.
+
+This example shows a middleware sub-stack that handles GET requests to the /user/:id path.
+
+app.get('/user/:id', (req, res, next) => {
+  // if the user ID is 0, skip to the next route
+  if (req.params.id === '0') next('route')
+  // otherwise pass the control to the next middleware function in this stack
+  else next()
+}, (req, res, next) => {
+  // send a regular response
+  res.send('regular')
+})
+
+// handler for the /user/:id path, which sends a special response
+app.get('/user/:id', (req, res, next) => {
+  res.send('special')
+})
+
+Middleware can also be declared in an array for reusability.
+
+This example shows an array with a middleware sub-stack that handles GET requests to the /user/:id path
+
+function logOriginalUrl (req, res, next) {
+  console.log('Request URL:', req.originalUrl)
+  next()
+}
+
+function logMethod (req, res, next) {
+  console.log('Request Type:', req.method)
+  next()
+}
+
+const logStuff = [logOriginalUrl, logMethod]
+app.get('/user/:id', logStuff, (req, res, next) => {
+  res.send('User Info')
+})
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Router-level middleware works in the same way as application-level middleware, except it is bound to an instance of express.Router().
+
+const router = express.Router()
+Load router-level middleware by using the router.use() and router.METHOD() functions.
+
+The following example code replicates the middleware system that is shown above for application-level middleware, by using router-level middleware:
+
+const express = require('express')
+const app = express()
+const router = express.Router()
+
+// a middleware function with no mount path. This code is executed for every request to the router
+router.use((req, res, next) => {
+  console.log('Time:', Date.now())
+  next()
+})
+
+// a middleware sub-stack shows request info for any type of HTTP request to the /user/:id path
+router.use('/user/:id', (req, res, next) => {
+  console.log('Request URL:', req.originalUrl)
+  next()
+}, (req, res, next) => {
+  console.log('Request Type:', req.method)
+  next()
+})
+
+// a middleware sub-stack that handles GET requests to the /user/:id path
+router.get('/user/:id', (req, res, next) => {
+  // if the user ID is 0, skip to the next router
+  if (req.params.id === '0') next('route')
+  // otherwise pass control to the next middleware function in this stack
+  else next()
+}, (req, res, next) => {
+  // render a regular page
+  res.render('regular')
+})
+
+// handler for the /user/:id path, which renders a special page
+router.get('/user/:id', (req, res, next) => {
+  console.log(req.params.id)
+  res.render('special')
+})
+
+// mount the router on the app
+app.use('/', router)
+To skip the rest of the router’s middleware functions, call next('router') to pass control back out of the router instance.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Error-handling middleware always takes four arguments. You must provide four arguments to identify it as an error-handling middleware function. Even if you don’t need to use the next object, you must specify it to maintain the signature. Otherwise, the next object will be interpreted as regular middleware and will fail to handle errors.
+
+Define error-handling middleware functions in the same way as other middleware functions, except with four arguments instead of three, specifically with the signature (err, req, res, next)):
+
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Express has the following built-in middleware functions:
+
+express.static serves static assets such as HTML files, images, and so on.
+express.json parses incoming requests with JSON payloads. NOTE: Available with Express 4.16.0+
+express.urlencoded parses incoming requests with URL-encoded payloads. NOTE: Available with Express 4.16.0+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Use third-party middleware to add functionality to Express apps.
+
+Install the Node.js module for the required functionality, then load it in your app at the application level or at the router level.
+
+The following example illustrates installing and loading the cookie-parsing middleware function cookie-parser.
+
+$ npm install cookie-parser
+const express = require('express')
+const app = express()
+const cookieParser = require('cookie-parser')
+
+// load the cookie-parsing middleware
+app.use(cookieParser())
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+To see all the internal logs used in Express, set the DEBUG environment variable to express:* when launching your app.
+
+$ DEBUG=express:* node index.js
+On Windows, use the corresponding command.
+
+> set DEBUG=express:* & node index.js
+
+An application generated by the express command also uses the debug module and its debug namespace is scoped to the name of the application.
+
+For example, if you generated the app with $ express sample-app, you can enable the debug statements with the following command:
+
+$ DEBUG=sample-app:* node ./bin/www
+You can specify more than one debug namespace by assigning a comma-separated list of names:
+
+$ DEBUG=http,mail,express:* node index.js
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.
+
+Helmet is a collection of several smaller middleware functions that set security-related HTTP response headers. Some examples include:
+
+helmet.contentSecurityPolicy which sets the Content-Security-Policy header. This helps prevent cross-site scripting attacks among many other things.
+helmet.hsts which sets the Strict-Transport-Security header. This helps enforce secure (HTTPS) connections to the server.
+helmet.frameguard which sets the X-Frame-Options header. This provides clickjacking protection.
+
+to use helmet, we need to npm install it, then 'use' it
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+

@@ -1,0 +1,44 @@
+{
+  "name": "nodews",
+  "version": "1.0.0",
+  "description": "this is my learning folder",
+  "main": "my_serious_app.js",
+  "scripts": {
+    "test1": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node 00_helloworld.js",
+    "test3": "jest",
+    "test": "jest --watchAll"
+  },
+  "keywords": [
+    "karthik",
+    "upadrasta",
+    "learning",
+    "node",
+    "project"
+  ],
+  "author": "Karthik Upadrasta",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
+    "chalk": "^4.1.2",
+    "ejs": "^3.1.8",
+    "express": "^4.17.2",
+    "hbs": "^4.2.0",
+    "helmet": "^6.0.0",
+    "heroku": "^7.59.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.3.1",
+    "mongoose": "^6.1.8",
+    "pug": "^3.0.2",
+    "request": "^2.88.2",
+    "typescript": "^4.5.5",
+    "validator": "^13.7.0",
+    "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.10",
+    "jest": "^27.5.1"
+  }
+}
